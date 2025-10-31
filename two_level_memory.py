@@ -1,15 +1,21 @@
-def two_level_memory_analysis(h1: float, t1: float, t2: float) -> float:
-    """Calculates the average memory access time for a two-level memory system."""
-    if not (0 <= h1 <= 1):
-        raise ValueError("Hit rate (h1) must be between 0 and 1.")
-    return h1 * t1 + (1 - h1) * (t1 + t2)
+def two_level_memory_analysis():
+    c1 = float(input("C1 = "))
+    c2 = float(input("C2 = "))
+    s1 = int(input("S1 = "))
+    s2 = int(input("S2 = "))
+    h1 = float(input("H1 = "))
+    h2 = float(input("H2 = "))
+    t1 = float(input("ta1 = "))
+    t2 = float(input("ta2 = "))
+    
+    total_cost = c1 * s1 + c2 * s2
+    total_size = s1 + s2
+    avg_cost_per_bit = total_cost / total_size
+    avg_access_time = h1 * t1 + (1 - h1) * h2 * t2
+    
+    print(f"Average Cost per Bit: {avg_cost_per_bit:.6f} INR")
+    print(f"Average Access Time: {avg_access_time:.6f} microseconds")
+
 
 if __name__ == '__main__':
-    try:
-        h1_in = float(input("Enter hit rate of cache (h1): "))
-        t1_in = float(input("Enter access time of cache (t1) in ns: "))
-        t2_in = float(input("Enter access time of main memory (t2) in ns: "))
-        avg_time = two_level_memory_analysis(h1_in, t1_in, t2_in)
-        print(f"Average memory access time: {avg_time:.2f} ns")
-    except ValueError as e:
-        print(f"Error: {e}")
+    two_level_memory_analysis()

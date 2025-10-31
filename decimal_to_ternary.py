@@ -1,20 +1,31 @@
-def decimal_to_ternary(decimal_num: int) -> str:
+def convert_int(int_part, base):
+    if base == 1:
+        return '1' * int_part
+    elif int_part == 0:
+        return '0'
+    result = ''
+    while int_part > 0:
+        result = str(int_part % base) + result
+        int_part //= base
+    return result
 
-    if not isinstance(decimal_num, int) or decimal_num < 0:
-        raise ValueError("Invalid input. Please provide a non-negative integer.")
-    if decimal_num == 0:
-        return "0"
-    ternary_str = ""
-    while decimal_num > 0:
-        remainder = decimal_num % 3
-        ternary_str = str(remainder) + ternary_str
-        decimal_num //= 3
-    return ternary_str
+def convert_frac(frac_part, base, precision=6):
+    result = ''
+    count = 0
+    while frac_part > 0 and count < precision:
+        frac_part *= base
+        digit = int(frac_part)
+        result += str(digit)
+        frac_part -= digit
+        count += 1
+    return result if result else '0'
 
-if __name__ == '__main__':
-    try:
-        num_input = int(input("Enter a non-negative integer: "))
-        ternary_output = decimal_to_ternary(num_input)
-        print(f"The ternary representation of {num_input} is: {ternary_output}")
-    except ValueError as e:
-        print(f"Error: {e}")
+decimal_input = float(input("Enter the decimal number: "))
+base = 3
+int_part = int(decimal_input)
+frac_part = decimal_input - int_part
+converted_int = convert_int(int_part, base)
+converted_frac = convert_frac(frac_part, base)
+print(f"Decimal {int_part} converted into Base-{base} system = {converted_int}")
+print(f"Fractional decimal {round(frac_part, 6)} converted into Base-{base} system = 0.{converted_frac}")
+print(f"Hence, Base-{base} equivalent of input decimal = {converted_int}.{converted_frac}")

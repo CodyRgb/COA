@@ -1,43 +1,30 @@
-class FullyAssociativeCache:
-    """Simulates a fully associative cache."""
-    def __init__(self, cache_size: int, block_size: int):
-        if not (cache_size > 0 and cache_size & (cache_size - 1) == 0):
-            raise ValueError("Cache size must be a power of 2")
-        if not (block_size > 0 and block_size & (block_size - 1) == 0):
-            raise ValueError("Block size must be a power of 2")
-        self.cache_size = cache_size
-        self.block_size = block_size
-        self.num_blocks = cache_size // block_size
-        self.cache = [None] * self.num_blocks
-        self.lru = list(range(self.num_blocks))
+import math
 
-    def access(self, address: int) -> str:
-        """Accesses a memory address and returns 'Hit' or 'Miss'."""
-        block_number = address // self.block_size
+cache_size_kb = int(input("Enter size of Cache memory (in KB): "))
+main_size_mb = int(input("Enter size of Main memory (in MB): "))
+line_size = int(input("Enter size of each cache line (in Bytes): "))
 
-        for i in range(self.num_blocks):
-            if self.cache[i] is not None and self.cache[i]['tag'] == block_number:
-                self.lru.remove(i)
-                self.lru.append(i)
-                return "Hit"
+cache_size = cache_size_kb * 1024
+main_size = main_size_mb * 1024 * 1024
+address_bits = int(math.log2(main_size))
+cache_banks = 1
+cache_bank_size = cache_size // cache_banks
+cache_lines = cache_bank_size // line_size
+main_blocks = main_size // line_size
+byte_bits = int(math.log2(line_size))
+tag_bits = address_bits - byte_bits
 
-        replace_index = self.lru.pop(0)
-        self.cache[replace_index] = {'tag': block_number, 'data': f"data for address {address}"}
-        self.lru.append(replace_index)
-        return "Miss"
+print("\nCache mapping policy: Fully Associative Mapping")
+print(f"Number of cache banks = {cache_banks}")
+print(f"Hence, size of cache bank = {cache_bank_size // 1024} KB")
+print(f"Cache lines per cache bank = {cache_lines} (Line No 0 to {cache_lines - 1})")
+print(f"Number of main memory blocks = {main_blocks} (Block No 0 to {main_blocks - 1})")
 
-if __name__ == '__main__':
-    try:
-        cache_s = int(input("Enter cache size (power of 2): "))
-        block_s = int(input("Enter block size (power of 2): "))
-        cache = FullyAssociativeCache(cache_s, block_s)
-        while True:
-            addr_str = input("Enter memory address to access (or 'q' to quit): ")
-            if addr_str.lower() == 'q':
-                break
-            address = int(addr_str)
-            result = cache.access(address)
-            print(f"Address {address}: {result}")
-            print(f"Cache state: {cache.cache}")
-    except ValueError as e:
-        print(f"Error: {e}")
+block_num = int(input("\nEnter any Main memory block number for cache mapping: "))
+cache_line = int(input(f"Enter cache line number (0 to {cache_lines - 1}): "))
+print(f"\nBlock {block_num} is mapped into cache line number = {cache_line}")
+
+print("\nMain memory address of", address_bits, "bits is interpreted in 3 fields:")
+print(f"LSB {byte_bits} bits for Byte selection")
+print(f"Middle 0 bits for Cache line selection (fully associative)")
+print(f"MSB {tag_bits} bits for Tags")

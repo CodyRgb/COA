@@ -1,48 +1,39 @@
-def to_binary(num: int, bits: int) -> str:
-    """Converts an integer to a two's complement binary string."""
-    if num >= 0:
-        return format(num, '0' + str(bits) + 'b')
+def to_binary(num, bits):
+    binary = bin(num)[2:]
+    binary = binary.zfill(bits)
+    if len(binary) > bits:
+        binary = binary[-bits:]
+    return binary
+
+divisor = int(input("Enter the Divisor (M): "))
+dividend = int(input("Enter the Dividend (Q): "))
+
+n = max(len(bin(abs(dividend))[2:]), len(bin(abs(divisor))[2:]))
+
+bin_divisor = to_binary(divisor, n)
+bin_dividend = to_binary(dividend, n)
+
+print("Binary representation of Dividend (Q) :", bin_dividend)
+print("Binary representation of Divisor (M):", bin_divisor)
+
+A = 0
+Q = dividend
+M = divisor
+count = n
+
+while count > 0:
+    A = (A << 1) | ((Q >> (n - 1)) & 1)
+    Q = (Q << 1) & ((1 << n) - 1)
+    
+    A = A - M
+    
+    if A < 0:
+        A = A + M
+        Q = Q & ~1
     else:
-        return format((1 << bits) + num, '0' + str(bits) + 'b')
+        Q = Q | 1
+    
+    count -= 1
 
-def from_binary(binary_str: str) -> int:
-    """Converts a two's complement binary string to an integer."""
-    if binary_str[0] == '1':
-        return int(binary_str, 2) - (1 << len(binary_str))
-    else:
-        return int(binary_str, 2)
-
-def bin_add(a: str, b: str) -> str:
-    """Adds two two's complement binary strings."""
-    return to_binary(from_binary(a) + from_binary(b), len(a))
-
-def restoring_division(dividend: int, divisor: int) -> tuple[int, int]:
-    """Performs restoring division of two integers."""
-    if divisor == 0:
-        raise ZeroDivisionError("Division by zero")
-
-    n = max(len(bin(abs(dividend))), len(bin(abs(divisor)))) - 2
-    quotient = to_binary(dividend, n)
-    divisor_binary = to_binary(divisor, n + 1)
-    accumulator = '0' * (n + 1)
-    divisor_neg = to_binary(-divisor, n + 1)
-
-    for _ in range(n):
-        accumulator = accumulator[1:] + quotient[0]
-        accumulator = bin_add(accumulator, divisor_neg)
-        if accumulator[0] == '1':
-            quotient = quotient[1:] + '0'
-            accumulator = bin_add(accumulator, divisor_binary)
-        else:
-            quotient = quotient[1:] + '1'
-
-    return from_binary(quotient), from_binary(accumulator)
-
-if __name__ == '__main__':
-    try:
-        dividend_input = int(input("Enter the dividend: "))
-        divisor_input = int(input("Enter the divisor: "))
-        q, r = restoring_division(dividend_input, divisor_input)
-        print(f"Quotient: {q}, Remainder: {r}")
-    except (ValueError, ZeroDivisionError) as e:
-        print(f"Error: {e}")
+print("Quotient in binary:", to_binary(Q, n))
+print("Remainder in binary:", to_binary(A, n))

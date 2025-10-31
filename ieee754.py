@@ -1,29 +1,47 @@
 import struct
 
-def float_to_ieee754(float_num: float) -> str:
-    """Converts a float to its 32-bit IEEE 754 binary representation."""
-    packed = struct.pack('!f', float_num)
-    unpacked = struct.unpack('!I', packed)[0]
-    return bin(unpacked)[2:].zfill(32)
+def float_to_ieee754(num):
+    print(f"Enter the Decimal Number = {num}")
 
-def ieee754_to_float(binary_str: str) -> float:
-    """Converts a 32-bit IEEE 754 binary string to a float."""
-    if len(binary_str) != 32:
-        raise ValueError("Input binary string must be 32 characters long.")
-    unpacked = int(binary_str, 2)
-    packed = struct.pack('!I', unpacked)
-    return struct.unpack('!f', packed)[0]
+    int_part = int(abs(num))
+    frac_part = abs(num) - int_part
+    int_bin = bin(int_part).replace("0b", "")
+    frac_bin = ""
+    while frac_part and len(frac_bin) < 10:
+        frac_part *= 2
+        if frac_part >= 1:
+            frac_bin += "1"
+            frac_part -= 1
+        else:
+            frac_bin += "0"
+    print(f"Given number in Binary = {int_bin}.{frac_bin}")
+
+    shift = len(int_bin) - 1
+    mantissa = int_bin[1:] + frac_bin
+    print(f"Given number in Scientific Notation = 1.{mantissa} * 2^{shift}")
+    print(f"Real Exponent = {shift}")
+
+    biased_exp = shift + 127
+    exp_bin = format(biased_exp, "08b")
+    print("Select the destination floating point format = 32 bit")
+    print(f"Biased Exponent = {shift} + 127 = {biased_exp} = {exp_bin}")
+
+    mantissa_23 = (mantissa + "0" * 23)[:23]
+    print(f"Actual fractional part = {mantissa}")
+    print(f"Mantissa of 23 bits = {mantissa_23}")
+
+    sign_bit = "0" if num >= 0 else "1"
+    print(f"Sign bit = {sign_bit}")
+
+    ieee_32bit = sign_bit + exp_bin + mantissa_23
+    print(f"32 bit representation of the given number = {ieee_32bit}")
+
+    packed = struct.pack('!f', num)
+    hex_str = hex(int.from_bytes(packed, 'big')).upper().replace("0X", "")
+    print(f"Hex representation = {hex_str}")
+
 
 if __name__ == '__main__':
-    try:
-        choice = input("Choose conversion: (1) float to IEEE 754, (2) IEEE 754 to float: ")
-        if choice == '1':
-            num = float(input("Enter a float: "))
-            print(f"IEEE 754 representation: {float_to_ieee754(num)}")
-        elif choice == '2':
-            binary = input("Enter a 32-bit binary string: ")
-            print(f"Float value: {ieee754_to_float(binary)}")
-        else:
-            print("Invalid choice.")
-    except ValueError as e:
-        print(f"Error: {e}")
+    num = float(input("Enter a decimal number: "))
+    float_to_ieee754(num)
+    

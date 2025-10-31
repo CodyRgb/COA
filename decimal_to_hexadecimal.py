@@ -1,22 +1,38 @@
-def decimal_to_hexadecimal(decimal_num: int) -> str:
-    if not isinstance(decimal_num, int) or decimal_num < 0:
-        raise ValueError("Invalid input. Please provide a non-negative integer.")
-    if decimal_num == 0:
-        return "0"
-    hexadecimal_str = ""
-    while decimal_num > 0:
-        remainder = decimal_num % 16
+def convert_int(int_part, base):
+    if base == 1:
+        return '1' * int_part
+    elif int_part == 0:
+        return '0'
+    result = ''
+    while int_part > 0:
+        remainder = int_part % base
         if remainder < 10:
-            hexadecimal_str = str(remainder) + hexadecimal_str
+            result = str(remainder) + result
         else:
-            hexadecimal_str = chr(ord('A') + remainder - 10) + hexadecimal_str
-        decimal_num //= 16
-    return hexadecimal_str
+            result = chr(ord('A') + remainder - 10) + result
+        int_part //= base
+    return result
 
-if __name__ == '__main__':
-    try:
-        num_input = int(input("Enter a non-negative integer: "))
-        hex_output = decimal_to_hexadecimal(num_input)
-        print(f"The hexadecimal representation of {num_input} is: {hex_output}")
-    except ValueError as e:
-        print(f"Error: {e}")
+def convert_frac(frac_part, base, precision=6):
+    result = ''
+    count = 0
+    while frac_part > 0 and count < precision:
+        frac_part *= base
+        digit = int(frac_part)
+        if digit < 10:
+            result += str(digit)
+        else:
+            result += chr(ord('A') + digit - 10)
+        frac_part -= digit
+        count += 1
+    return result if result else '0'
+
+decimal_input = float(input("Enter the decimal number: "))
+base = 16
+int_part = int(decimal_input)
+frac_part = decimal_input - int_part
+converted_int = convert_int(int_part, base)
+converted_frac = convert_frac(frac_part, base)
+print(f"Decimal {int_part} converted into Base-{base} system = {converted_int}")
+print(f"Fractional decimal {round(frac_part, 6)} converted into Base-{base} system = 0.{converted_frac}")
+print(f"Hence, Base-{base} equivalent of input decimal = {converted_int}.{converted_frac}")

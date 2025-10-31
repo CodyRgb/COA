@@ -1,39 +1,32 @@
-class DirectMappingCache:
-    """Simulates a direct mapping cache."""
-    def __init__(self, cache_size: int, block_size: int):
-        if not (cache_size > 0 and cache_size & (cache_size - 1) == 0):
-            raise ValueError("Cache size must be a power of 2")
-        if not (block_size > 0 and block_size & (block_size - 1) == 0):
-            raise ValueError("Block size must be a power of 2")
-        self.cache_size = cache_size
-        self.block_size = block_size
-        self.num_blocks = cache_size // block_size
-        self.cache = [None] * self.num_blocks
+import math
 
-    def access(self, address: int) -> str:
-        """Accesses a memory address and returns 'Hit' or 'Miss'."""
-        block_number = address // self.block_size
-        cache_index = block_number % self.num_blocks
-        tag = block_number // self.num_blocks
+cache_size_kb = int(input("Enter size of Cache memory (in KB): "))
+main_size_mb = int(input("Enter size of Main memory (in MB): "))
+line_size = int(input("Enter size of each cache line (in Bytes): "))
 
-        if self.cache[cache_index] is not None and self.cache[cache_index]['tag'] == tag:
-            return "Hit"
-        else:
-            self.cache[cache_index] = {'tag': tag, 'data': f"data for address {address}"}
-            return "Miss"
+cache_size = cache_size_kb * 1024
+main_size = main_size_mb * 1024 * 1024
+address_bits = int(math.log2(main_size))
+cache_banks = 1
+cache_bank_size = cache_size // cache_banks
+cache_lines = cache_bank_size // line_size
+main_blocks = main_size // line_size
+byte_bits = int(math.log2(line_size))
+line_bits = int(math.log2(cache_lines))
+tag_bits = address_bits - (byte_bits + line_bits)
 
-if __name__ == '__main__':
-    try:
-        cache_s = int(input("Enter cache size (power of 2): "))
-        block_s = int(input("Enter block size (power of 2): "))
-        cache = DirectMappingCache(cache_s, block_s)
-        while True:
-            addr_str = input("Enter memory address to access (or 'q' to quit): ")
-            if addr_str.lower() == 'q':
-                break
-            address = int(addr_str)
-            result = cache.access(address)
-            print(f"Address {address}: {result}")
-            print(f"Cache state: {cache.cache}")
-    except ValueError as e:
-        print(f"Error: {e}")
+print("\nCache mapping policy: Direct Mapping")
+print(f"Main Memmory Address = {address_bits}")
+print(f"Number of cache banks = {cache_banks}")
+print(f"Hence, size of cache bank = {cache_bank_size // 1024} KB")
+print(f"Cache lines per cache bank = {cache_lines} (Line No 0 to {cache_lines - 1})")
+print(f"Number of main memory blocks = {main_blocks} (Block No 0 to {main_blocks - 1})")
+
+block_num = int(input("\nEnter any Main memory block number for cache mapping: "))
+cache_line = block_num % cache_lines
+print(f"\nBlock {block_num} is mapped into cache line number = {cache_line}")
+
+print("\nMain memory address of", address_bits, "bits is interpreted in 3 fields:")
+print(f"LSB {byte_bits} bits for Byte selection")
+print(f"Middle {line_bits} bits for Cache line selection")
+print(f"MSB {tag_bits} bits for Tags")
